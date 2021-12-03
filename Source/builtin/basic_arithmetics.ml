@@ -11,7 +11,7 @@ let gcd a b =
     |0 -> a
     |x when 0 > x -> recgcd b (-(modulo a b))
     |_ -> recgcd b (modulo a b)
-   in recgcd a b;;
+  in recgcd a b;;
 
 (** Extended euclidean division of two integers NOT OCAML DEFAULT.
     Given non-zero entries a b computes triple (u, v, d) such that

@@ -39,7 +39,6 @@ let quot a b= if b = 0 then
     @param a input integer
     @param b moduli integer.
  *)
-
 let modulo a b = a - (quot a b)*b;;
 
 (** Division of an integer by a natural number. NOT OCAML DEFAULT.
@@ -48,5 +47,4 @@ let modulo a b = a - (quot a b)*b;;
     @param a dividend
     @param b integer you divide by.
 *)
-
 let div a b = (quot a b, modulo a b);;

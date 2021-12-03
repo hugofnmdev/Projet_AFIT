@@ -41,9 +41,6 @@ let prime_mod_power_tests () =
     in
     List.iter do_check cases
 
-(****************************************************************************)
-(****************************************************************************)
-
 let power_set =
     [("Pow function", `Quick, pow_tests);
      ("Power function", `Quick, power_tests);

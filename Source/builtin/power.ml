@@ -31,10 +31,10 @@ in recpower x n;;
     @param m modular base
  *)
 let mod_power x n m =
-  let rec recmod_power x n m =
-    if n = 0 then 1
-    else (x * recmod_power x n m) mod m
-in recmod_power x n m;;
+  let rec recmod_power xrec nrec =
+    if n <= nrec then xrec
+    else recmod_power (modulo (xrec*x) m) (nrec+1)
+  in recmod_power 1 0;;
 
 (** Fast modular exponentiation function mod prime. Logarithmic complexity.
     It makes use of the Little Fermat Theorem.
