@@ -26,10 +26,11 @@ let rec remove_nth n l1 l2 = match l1 with
 let eratosthenes n = if n < 0 then
                        invalid_arg "Error : n must be a natural"
                      else
-                       let rec erastrec n i l = if i*i > n then
-                                             l
-                                           else
-                                             erastrec n (i+1) (remove_nth i l [])
+                       let rec erastrec n i l =
+                         if i*i > n then
+                           l
+                         else
+                           erastrec n (i+1) (remove_nth i l [])
                        in erastrec n 3 (init_eratosthenes n);;
 
 (** Write a list into a file. Element seperator is newline.
@@ -39,7 +40,7 @@ let write_list li file =
   let oc = open_out file in
   let rec aux = function
     |[] -> close_out oc
-    |e::l -> Printf.fprintf oc "%s\n" e; aux l
+    |e::l -> Printf.fprintf oc "%d\n" e; aux l
   in aux li;;
 
 (** Write a list of prime numbers up to limit into a txt file.
@@ -93,15 +94,21 @@ let rec last_two l = match l with
     @param limit positive integer bounding searched for primes.
     @param isprime function testing for (pseudo)primality.
  *)
-let double_primes limit isprime = []
+let double_primes limit isprime =
+  let rec doublerec l = match l with
+    |[] -> []
+    |e1::s1 when isprime (e1*2+1) && isprime e1 -> (e1,e1*2+1)::doublerec s1
+    |e1::s1 -> doublerec s1
+  in doublerec (eratosthenes limit);;
 
 (** Finding twin primes.
     @param limit positive integer bounding searched for primes.
     @param isprime function testing for (pseudo)primality.
  *)
+
 let twin_primes limit isprime =
-  let primes = eratosthenes limit in
-  let rec test primes =match primes with
+  let primes = eratosthenes limit
+  in let rec test primes = match primes with
       |[] -> []
       |e::l -> if e = 2 then
                     test l
