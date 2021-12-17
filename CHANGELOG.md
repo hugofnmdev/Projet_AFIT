@@ -70,3 +70,34 @@ To Do :
 - SCALABLE FOLDER
 	- Scalable (some code to finish)
 	- And lots of other boring code to do
+	
+## 14/12/2021 :
+
+Done :
+- BUILTIN FOLDER
+
+To Do :
+- SCALABLE FOLDER
+- ZARITHING FOLDER (nobody know what this folder is for...)
+
+## 16/12/2021 :
+
+Done :
+- BUILTIN FOLDER
+- SCALABLE FOLDER :
+	- Scalable
+	- Basic Arithmetics
+	- Test Primes
+	
+To Do :
+- The rest of SCALABLE FOLDER
+- ZARITHING FOLDER (still finding who understood this part...)
+
+## 17/12/2021 :
+
+Done :
+- BUILTIN FOLDER
+- SCALABLE FOLDER
+
+To Do :
+- ZARITHING (i want to die)

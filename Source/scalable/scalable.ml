@@ -10,7 +10,32 @@ the first encountered bit is the coefficient in front of two to
 the power zero. This convention has been chosen to ease writing
 down code.
 
- *)
+*)
+
+let shiftbis l = 0::l;;
+
+let reverse list =
+  let rec rev accu = function
+    |[]   -> accu
+    |e::l -> rev (e::accu) l
+  in rev [] list ;;
+
+let clear list =
+  let rec clearrec l = match l with
+    |[]->[]
+    |e::l->if e=0 then
+        clearrec l
+      else
+        e::l
+  in reverse (clearrec(reverse list));;
+
+let rec shift_n l d = match d with
+  |0->l
+  |d->shift_n (shiftbis l)(d-1);;
+
+let tail l= match l with
+  |[]->[]
+  |e::l->l;;
 
 (** Creates a bitarray from a built-in integer.
     @param x built-in integer.
@@ -218,37 +243,117 @@ let add_n nA nB =
     @param nA Natural.
     @param nB Natural.
 *)
-let diff_n nA nB = []
+let diff_n nA nB =
+	let rec diffrec nA nB c = match (nA,nB) with
+   |([],[]) -> []
+   |([],e2::s2) -> invalid_arg "Error : nB greater than nA"
+   |(e::s,[]) when  e-c >=0 -> (e-c)::diffrec s nB  0
+   |(e::s,[])when c=1-> (2-c)::diffrec s nB  1
+   |(e::s,[])-> 1::diffrec s nB  0
+   |(e::s,e2::s2) when e-e2-c=(-2)->0::diffrec s s2  1
+   |(e::s,e2::s2) when e-e2-c=(-1)->1::diffrec s s2  1
+   |(e::s,e2::s2) when e-e2-c=(0)->0::diffrec s s2  0
+   |(e::s,e2::s2) when e-e2-c=(1)->1::diffrec s s2  0
+   |(_,_)->[]
+ in clear(diffrec nA nB 0);;
 
 (** Addition of two bitarrays.
     @param bA Bitarray.
     @param bB Bitarray.
  *)
-let add_b bA bB = []
+let add_b bA bB = match (bA,bB) with
+  |(bA,[])->bA
+  |([],bB)->bB
+  |(e::l,e1::l1) when sign_b bA=(-1) && sign_b bB =(-1) -> 1::add_n l l1
+  |(e::l,e1::l1) when sign_b bA=  1  && sign_b bB =  1  -> 0::add_n l l1
+  |(e::l,e1::l1) when sign_b bA=(-1) && sign_b bB=1 && compare_n l l1 = 1 ->  1::diff_n l l1
+  |(e::l,e1::l1) when sign_b bA=(-1) && sign_b bB=1 && compare_n l l1 =(-1)->0::diff_n l1 l
+  |(e::l,e1::l1) when compare_n l l1=1 ->0::diff_n l l1
+  |(e::l,e1::l1) when compare_n l l1=(-1)->1::diff_n  l1 l
+  |(e::l,e1::l1)->[];;
 
 (** Difference of two bitarrays.
     @param bA Bitarray.
     @param bB Bitarray.
 *)
-let diff_b bA bB = []
+let diff_b bA bB = match (bA,bB) with
+  |([],[])->[]
+  |(e::l,[])->clear(e::l)
+  |([],e::l)->[]
+  |(e::l,e1::l1)->if e=0 && e1=0 then if l>=!l1 then clear(0::diff_n l l1)
+    else clear (1::diff_n l1 l)
+    else if e=0 && e1=1 then clear(0::add_n l l1)
+    else if e=1 && e1=0 then clear(1::add_n l l1) 
+    else if l>=!l1 then clear(1::diff_n l l1)
+    else clear(0::diff_n l1 l);;
 
 (** Shifts bitarray to the left by a given natural number.
     @param bA Bitarray.
     @param d Non-negative integer.
 *)
-let rec shift bA d = []
+let rec shift bA d = match (bA,d) with
+  |(l,0)->l
+  |([],d)->[]
+  |(e::l,d)->shift (e::0::l) (d-1);;
 
 (** Multiplication of two bitarrays.
     @param bA Bitarray.
     @param bB Bitarray.
 *)
-let mult_b bA bB = []
+let mult_b bA bB =
+  let rec multrec bA bB d1= match (bA,bB) with
+  |([],[])->[]
+  |(e::l,[])|([],e::l)->[]
+  |(l,e1::l1) -> if e1=0 then
+      multrec l l1 (d1+1)
+		else
+    add_b (shift l d1) (multrec l l1 (d1+1))
+  in match (bA,bB) with
+  |(e::l,[])|([],e::l)->[]
+  |(e::l,e1::h) when sign_b bA = sign_b bB -> multrec (0::l) (h) 0
+  |(e::l,e1::u) -> multrec (1::l) (u) 0
+  |([],[])->[];;
 
 (** Quotient of two bitarrays.
     @param bA Bitarray you want to divide by second argument.
     @param bB Bitarray you divide by. Non-zero!
 *)
-let quot_b bA bB =  []
+
+let mult_n bA bB =
+  let rec multrec bA bB d1= match (bA,bB) with
+    |([],[])->[]
+    |(e::l,[])|([],e::l)->[]
+    |(l,e1::l1) -> if e1=0 then
+        multrec l l1 (d1+1)
+      else
+        add_n (shift_n l d1) (multrec l l1 (d1+1))
+	in multrec bA bB 0;;
+
+let list_bin_mult n d=
+  let rec list l1 l2 n d= match (l1,l2) with
+  |(_::l1,e2::l2) when compare_n e2 n =1 -> (tail (l1),(l2))
+    |(e1::l1,l2) ->list ((shiftbis e1)::e1::l1) ((mult_n e1 d)::l2) n d
+    |(_,_)->([],[])
+  in list [[1]] [] n d;;
+
+let quot_b bA bB =
+  let quot_b2 bA bB=
+    let (q2,t2)= list_bin_mult (tail bA) (tail bB)
+    in let rec hugo (l1,l2) q t = match (l1,l2) with
+        |([],_)|(_,[])-> q
+        |(e::l,e1::l1)-> if (add_n t e1) >>! (tail bA) then
+            hugo (l,l1) q t
+          else
+            hugo (l,l1)(add_n e q)(add_n e1 t)
+    in match (bA,bB) with
+    |(e::l,e1::l1) when e=1 -> if e=e1 then
+        0::(add_n(hugo(q2,t2)[][])[1])
+      else
+        1::(add_n (hugo (q2,t2)[][])[1])
+    |(_,[])|([],_)->[]
+    |(e::l,e1::l1)when (e=e1 && (e=0 ||e=1)) -> 0::(hugo (q2,t2)[] [])
+    |(e::l,e1::l1)-> 1::(hugo (q2,t2) [] [])
+  in clear(quot_b2 bA bB);;
 
 (** Modulo of a bitarray against a positive one.
     @param bA Bitarray the modulo of which you're computing.
